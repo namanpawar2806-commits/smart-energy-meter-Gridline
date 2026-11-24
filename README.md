@@ -1,4 +1,4 @@
-# GRIDLINE### Software-Driven Design and Simulation of a Smart Energy Metering System
+# GRIDLINE: Software-Driven Design and Simulation of a Smart Energy Metering System
 GRIDLINE is a software-based smart energy monitoring and analytics platform designed around Indian household electricity consumption scenarios.
 It provides a dashboard for generating simulated electricity readings, importing CSV data, monitoring consumption, estimating electricity costs, and identifying unusual power usage patterns.
 > **Important:** GRIDLINE currently operates as a software simulation and data-analysis platform. It does not directly measure electricity from a physical smart meter. Simulated readings are labelled separately from imported or device readings.
