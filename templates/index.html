@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff"><title>Gridline — Smart Energy Meter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><span class="brand-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 2.8 5.5 13h5.4l-.5 8.2L18.5 11h-5.4l.1-8.2Z"/></svg></span><span><b>GRIDLINE</b><small>SMART ENERGY METER</small></span></a>
+    <div class="nav-caption">WORKSPACE</div>
+    <nav class="navigation">
+      <a class="nav active" href="#overview"><span class="nav-icon">▦</span>Overview</a>
+      <a class="nav" href="#analytics"><span class="nav-icon">⌁</span>Energy analytics</a>
+      <a class="nav" href="#devices"><span class="nav-icon">▤</span>Meter readings</a>
+      <a class="nav" href="#billing"><span class="nav-icon">₹</span>Bill estimate</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="server-card"><span class="server-icon">●</span><div><b>System status</b><small id="sideStatus">Checking connection</small></div></div>
+      <div class="side-version">GRIDLINE PLATFORM <span>v1.1</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div><div class="breadcrumb">INDIA <span>/</span> RESIDENTIAL ENERGY</div><h1>Energy meter dashboard</h1><p class="page-subtitle">Household electricity monitoring and bill estimation · India Standard Time</p></div>
+      <div class="header-actions"><span id="connection" class="connection-pill"><i></i> Checking system</span><button class="button button-outline" onclick="refresh()"><span class="refresh-icon">↻</span> Refresh data</button></div>
+    </header>
+
+    <section class="notice" id="notice"><span class="notice-symbol">i</span><div class="notice-copy"><b>Demo data is available</b><p>Generate a simulated Indian household profile to explore the dashboard. Every generated reading is labelled SIMULATION and is not a physical meter measurement.</p></div><span class="notice-state">DEMO MODE</span></section>
+    <section class="card simulator-card" id="simulation"><div class="card-heading"><div><span class="overline">DEMONSTRATION ENVIRONMENT</span><h2>Generate household meter data</h2><p>Simulate a residential electricity meter without hardware.</p></div><span class="plain-chip">SIMULATION</span></div><div class="sim-controls"><label>House type<select id="homeProfile"><option value="1bhk">1 BHK · 1–2 occupants</option><option value="2bhk" selected>2 BHK · 2–4 occupants</option><option value="3bhk">3 BHK · 3–5 occupants</option><option value="3bhk_plus">3 BHK+ · larger household</option></select></label><label>History period<select id="simDays"><option value="1">Last 24 hours</option><option value="7" selected>Last 7 days</option><option value="15">Last 15 days</option><option value="30">Last 30 days</option></select></label><button class="button button-dark" id="generateBtn" onclick="generateDemo()">Generate demo readings</button></div><p class="disclaimer">The model uses representative appliance schedules and randomized load variation. It is for software demonstration and testing, not an engineering-grade load forecast or utility bill.</p></section>
+
+    <section class="section-block" id="overview">
+      <div class="section-heading"><div><h2>Key measurements</h2><p>Latest values calculated from the selected data set</p></div><span class="data-label" id="dataModeLabel">SIMULATED DATA</span></div>
+      <div class="metrics-grid">
+        <article class="metric-card"><div class="metric-top"><span>ACTIVE POWER</span><span class="metric-index">01</span></div><div class="metric-value" id="latestPower">— <small>kW</small></div><div class="metric-bottom"><span class="metric-dot"></span><span id="latestTime">No reading received</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span>ENERGY CONSUMED</span><span class="metric-index">02</span></div><div class="metric-value" id="energy">— <small>kWh</small></div><div class="metric-bottom" id="energyMethod">Requires at least two readings</div></article>
+        <article class="metric-card"><div class="metric-top"><span>PEAK ACTIVE POWER</span><span class="metric-index">03</span></div><div class="metric-value" id="peak">— <small>kW</small></div><div class="metric-bottom">Maximum observed in data window</div></article>
+        <article class="metric-card"><div class="metric-top"><span>ANOMALIES FLAGGED</span><span class="metric-index">04</span></div><div class="metric-value" id="anomalies">—</div><div class="metric-bottom">Statistical outlier screening</div></article>
+      </div>
+    </section>
+
+    <section class="content-grid" id="analytics">
+      <article class="card chart-card"><div class="card-heading"><div><span class="overline">CONSUMPTION</span><h2>Power usage trend</h2><p>Average active power grouped by hour</p></div><span class="unit-pill">WATTS (W)</span></div><div class="chart-wrap"><canvas id="chart"></canvas><div id="chartEmpty" class="empty-chart"><span class="empty-chart-icon">⌁</span><b>No readings to plot</b><span>Import meter data to view the power trend.</span></div></div><div class="chart-footer"><span class="legend"><i></i> Average active power</span><span id="sampleCount">0 samples</span></div></article>
+      <article class="card analytics-card"><div class="card-heading"><div><span class="overline">LOAD ANALYSIS</span><h2>Anomaly screening</h2><p>Statistical review of recorded samples</p></div><span class="plain-chip">MAD METHOD</span></div><div class="analysis-result"><span class="analysis-mark">⌁</span><div><b id="anomalyText">Not evaluated</b><small>Modified Z-score based on median absolute deviation</small></div></div><div class="detail-list"><div><span>Records analyzed</span><b id="records">0</b></div><div><span>Devices observed</span><b id="deviceCount">0</b></div><div><span>Mean active power</span><b id="average">—</b></div><div><span>Data origin</span><b id="origin">None</b></div></div><p class="disclaimer">An outlier is an unusual measurement, not proof of a meter fault. Screening requires at least 8 samples and uses |modified Z| &gt; 3.5.</p></article>
+    </section>
+
+    <section class="content-grid lower-grid">
+      <article class="card" id="devices"><div class="card-heading"><div><span class="overline">METER INTEGRATION</span><h2>Import actual readings</h2><p>Optional: add real meter data later, when available.</p></div><span class="plain-chip">DATA INPUT</span></div>
+        <div class="import-panel"><span class="upload-symbol">↑</span><div class="import-copy"><b>Import meter data</b><p>Choose a CSV file with timestamps and electrical measurements.</p></div><label class="button button-dark" for="csvFile">Select CSV</label><input id="csvFile" type="file" accept=".csv,text/csv" hidden></div>
+        <div class="endpoint"><div class="endpoint-heading">DEVICE API ENDPOINT</div><div class="endpoint-line"><span class="method">POST</span><code>/api/readings</code><a href="/docs" target="_blank" class="docs-link">API docs ↗</a></div><p>Send JSON readings with an <code>X-API-Key</code> header. Set <code>SMARTGRID_INGEST_KEY</code> on the server before accepting device data.</p></div>
+      </article>
+      <article class="card billing-card" id="billing"><div class="card-heading"><div><span class="overline">COST ESTIMATION</span><h2>Electricity bill estimate</h2><p>Illustrative domestic energy rate in Indian rupees.</p></div><span class="plain-chip">INR</span></div>
+        <div class="tariff-form"><label for="rate">Energy tariff</label><div class="rate-input"><span>₹</span><input id="rate" type="number" min="0.01" step="0.01" value="8.00"><span class="rate-unit">per kWh</span></div><button class="button button-dark save-button" onclick="saveTariff()">Update tariff</button></div>
+        <div class="bill-total"><span>Estimated energy charge</span><b id="cost">—</b><small id="costNote">No energy total available yet</small></div><p class="disclaimer">₹8/unit is an editable demonstration assumption, not an official tariff. Actual domestic tariffs, slabs, fixed charges, electricity duty and subsidies vary by state, DISCOM and consumer category. This estimate excludes those adjustments.</p>
+      </article>
+    </section>
+
+    <section class="card readings-card"><div class="card-heading readings-heading"><div><span class="overline">METER TELEMETRY</span><h2>Recent readings</h2><p>Most recent records received by the system</p></div><a class="docs-link" href="/api/readings?limit=200" target="_blank">View API response ↗</a></div><div class="table-wrap"><table><thead><tr><th>TIMESTAMP</th><th>METER / DEVICE</th><th>VOLTAGE</th><th>CURRENT</th><th>ACTIVE POWER</th><th>POWER FACTOR</th><th>SOURCE</th></tr></thead><tbody id="readingRows"><tr><td colspan="7" class="no-rows">No readings yet. Generate a simulated household data set above.</td></tr></tbody></table></div></section>
+    <footer class="page-footer"><span>GRIDLINE <i>·</i> SMART ENERGY METERING</span><span>Simulation values are synthetic. Currency: INR (₹) · Energy: kWh (units) · Time: IST.</span></footer>
+  </main>
+</div>
+<div id="toast" class="toast"></div><script src="/static/app.js"></script>
+</body></html>
